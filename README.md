@@ -1,3 +1,25 @@
+## ITMS-91065: Missing signature
+
+So, you have an app that uses AFNetworking but when you submit it to App Store Connect, you receive a rejection message similar to this:
+
+_**ITMS-91065: Missing signature** - Your app includes “Frameworks/AFNetworking.framework/AFNetworking”, which includes AFNetworking, an SDK that was identified in the documentation as a commonly used third-party SDK. If a new app includes a commonly used third-party SDK, or an app update adds a new commonly used third-party SDK, the SDK must include a signature file. Please contact the provider of the SDK that includes this file to get an updated SDK version with a signature. For details about verifying the code signature for a third-party SDK, visit: https://developer.apple.com/documentation/xcode/verifying-the-origin-of-your-xcframeworks._
+
+There are two possible reasons for this rejection. First, Apple now requires that "commonly used third-party SDKs" include a privacy manifest. Apple considers AFNetworking to be a commonly used third-party SDK. Second, Apple requires that these SDKs be signed by the author. Since AFNetworking as been depricated by the author, they will not be making this changes. To resolve these issues yourself, your can do the following:
+
+1. Add a privacy manifest to the AFNetworking project. You can do this by forking the original repo and adding the privacy manifest yourself. Or you can use this fork, where the manifest has already been added.
+3. Self sign the AFNetowrking XCFramework. If you are using CocoaPods, this may not be necessary since its script signs the framework. However, if you are using Carthage, manually signing the file will likely be needed. Either way, you can check the signing status by running the following command from the directory where the XCFramework is located:
+
+```
+codesign -dv --entitlements :- AFNetworking.xcframework
+```
+If the XCFramework is not signed, you can self-sign it using ths following command:
+```
+codesign -f -s "Apple Distribution: YOUR_TEAM_NAME" --timestamp --deep AFNetworking.xcframework
+```
+Be sure to replace YOUR_TEAM_NAME with your actual Apple devekoper team name. Also, note that you mat need to install Apple Command Line Tools to be able to use the codesign command. 
+
+---
+
 # AFNetworking is Deprecated
 
 As of Jan. 17, 2023, AFNetworking is deprecated and there will be no further releases. This repo will remain online in perpetuity as an archive. There are a couple options for continued AFNetworking use:
